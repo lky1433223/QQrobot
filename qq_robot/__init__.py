@@ -7,15 +7,16 @@ import urllib.response
 import urllib.parse
 from flask import Flask, request
 from mcdreforged.api.all import *
-from typing import Dict, Callable, Any, Optional, Union, List
-# from numpy import Inf
-# https://docs.go-cqhttp.org/
+from typing import Dict, Callable, Any
 
 
 class Config(Serializable):
     information: Dict[str, str] = {
         'ip': 'http://127.0.0.1:5700',
         'group_id': '0'
+    }
+    user_list: Dict[str, int] = {
+        'ShiinaRikka': 541665621
     }
 
 
@@ -30,7 +31,6 @@ def send_message(id='/send_group_msg', msg=None):
     :return _UrlopenRet
     """
     global config
-    print(msg)
     ip = config.information['ip']
     group_id = int(config.information['group_id'])
     url = ip + id
@@ -62,13 +62,10 @@ def on_load(server: PluginServerInterface, old):
             Literal('send').
             then(
                 GreedyText('message').
-                runs(lambda src: src.reply('sending'))
+                runs(lambda src: src.reply('message is sending'))
             )
         )
     )
-    # listen_qq(server)
-    # response = urllib.request.urlopen(
-    #     'http://192.168.3.13:5700/send_group_msg?group_id=1067245310&message=QQrobot_online')
 
 
 def on_user_info(server: PluginServerInterface, info: Info):
@@ -78,6 +75,10 @@ def on_user_info(server: PluginServerInterface, info: Info):
             str("message:") + str(info.content[9:])
         response = send_message('/send_group_msg', msg)
         server.logger.info(response.read().decode('utf-8'))
+        if str(response.reason) == 'OK':
+            server.reply(info, text="Message sent successfully")
+        else:
+            server.reply(info, text="Message sending failed")
 
 
 def on_server_start(server: PluginServerInterface):
