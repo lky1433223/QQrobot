@@ -8,7 +8,7 @@
 # 功能介绍
 自主处理用户消息并发送群消息
 
-接收群消息（正在开发）
+接收群消息并发送到服务器
 
 在服务器启动、启动完成、关闭时发送消息
 
@@ -26,9 +26,13 @@ pip install -r requirements.txt
 
 配置文件：```config/qq_robot/config.json```
 
-```ip```：go-cqhttp的http端口，默认值：```http://127.0.0.1:5700```
+```ip```：go-cqhttp的Websocket地址，默认值：```127.0.0.1```
+
+```port```：go-cqhttp的Websocket端口，默认值：```8080```
 
 ```group_id```：发送消息的群号，默认值：```0```
+
+```userlist```：QQ号和游戏id的对应表
 
 # Command
 ```!!qq```显示帮助信息
