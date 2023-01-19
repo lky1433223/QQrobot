@@ -1,6 +1,7 @@
 from mcdreforged.api.all import *
 from typing import Dict, Callable, Any
 from qq_robot.qq_class import QQSocket
+from threading import Thread
 
 __all__ = ['qq_class']
 
@@ -8,13 +9,14 @@ Config = {
     "information": {
         "ip": "127.0.0.1",
         "port": "8080",
-        "group_id": '0'
+        "group_id": "0"
     },
     "user_list": {}
 }
 
 config: dict
 qq: QQSocket
+dealing = False
 
 
 def send_group_message(message=None):
@@ -29,13 +31,38 @@ def send_group_message(message=None):
     return qq.send("send_group_msg", msg)
 
 
+def msg_dealer(qq: QQSocket, config: dict, server: PluginServerInterface):
+    global dealing
+    while dealing:
+        message_list = qq.get_message()
+        for message in message_list:
+            # print("in msg_dealer", message)
+            if message["message_type"] == "group" and str(message["group_id"]) == config["information"]["group_id"]:
+                print("in group")
+                user = None
+                if message["user_id"] in config["user_list"]:
+                    user = config["user_list"][message["user_id"]]
+                else:
+                    if message["sender"]["card"]:
+                        user = message["sender"]["card"]
+                    else:
+                        user = message["sender"]["nickname"]
+                server.broadcast("[{}]{}".format(user, message["message"]))
+
+
 def on_load(server: PluginServerInterface, old):
     server.logger.info('QQrobot on')
     global config
     global qq
+    global dealing
     config = server.load_config_simple('config.json', default_config=Config)
     qq = QQSocket(config["information"]["ip"], int(config["information"]["port"]))
     qq.run()
+    dealing = True
+    msg_dealer_thread = Thread(target=msg_dealer, args=(qq, config, server))
+    msg_dealer_thread.setDaemon(True)
+    msg_dealer_thread.setName("msg_dealer_thread")
+    msg_dealer_thread.start()
 
     def exe(func: Callable[[CommandSource, str], Any]):
         return lambda src, ctx: func(src, **ctx)
@@ -58,6 +85,11 @@ def on_load(server: PluginServerInterface, old):
             )
         )
     )
+
+
+def on_unload(server: PluginServerInterface):
+    global dealing
+    dealing = False
 
 
 def on_user_info(server: PluginServerInterface, info: Info):
@@ -94,7 +126,7 @@ def on_player_joined(server: PluginServerInterface, player: str, info: Info):
 
 
 def on_player_left(server: PluginServerInterface, player: str):
-    msg = "[server] {} joined the game".format(player)
+    msg = "[server] {} left the game".format(player)
     response = send_group_message(msg)
 
 
