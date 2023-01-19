@@ -66,7 +66,7 @@ def on_user_info(server: PluginServerInterface, info: Info):
         msg = "[{}]{}".format(str(info.player), str(info.content[9:]))
         response = send_group_message(msg)
         server.logger.info("sending" + msg)
-        if str(response) == 'OK':
+        if response:
             server.reply(info, text="Message sent successfully")
         else:
             server.reply(info, text="Message sending failed")
