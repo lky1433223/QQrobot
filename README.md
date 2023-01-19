@@ -16,6 +16,11 @@
 
 在MCDR关闭时发送消息
 
+# Requirements
+```shell
+pip install -r requirements.txt
+```
+
 # 配置
 **需要配置好[go-cqhttp](https://docs.go-cqhttp.org/)** 连接方式选择http
 
