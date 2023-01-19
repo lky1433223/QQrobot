@@ -1,19 +1,19 @@
 from mcdreforged.api.all import *
 from typing import Dict, Callable, Any
-from qq_robot.qq_class import QQSocket
-
+from qq_class import QQSocket
 __all__ = ['qq_class']
 
-Config = {
-    "information": {
+class Config(Serializable):
+    information: Dict = {
         "ip": "127.0.0.1",
-        "port": "8080",
+        "port": 8080,
         "group_id": '0'
-    },
-    "user_list": {}
-}
+    }
+    user_list: Dict[str, int] = {
+    }
 
-config: dict
+
+config: Config
 qq: QQSocket
 
 
@@ -23,7 +23,7 @@ def send_group_message(message=None):
     global config
     global qq
     msg = {
-        "group_id": config["information"]["group_id"],
+        "group_id": config.information("group_id"),
         "message": message
     }
     return qq.send("send_group_msg", msg)
@@ -33,9 +33,8 @@ def on_load(server: PluginServerInterface, old):
     server.logger.info('QQrobot on')
     global config
     global qq
-    config = server.load_config_simple('config.json', default_config=Config)
-    qq = QQSocket(config["information"]["ip"], int(config["information"]["port"]))
-    qq.run()
+    config = server.load_config_simple('config.json', target_class=Config)
+    qq = QQSocket(config["ip"], config["port"])
 
     def exe(func: Callable[[CommandSource, str], Any]):
         return lambda src, ctx: func(src, **ctx)
@@ -63,9 +62,9 @@ def on_load(server: PluginServerInterface, old):
 def on_user_info(server: PluginServerInterface, info: Info):
     txt = info.content
     if txt[0:9] == "!!qq send":
-        msg = "[{}]{}".format(str(info.player), str(info.content[9:]))
+        msg = "[{}] {}".format(info.player, info.content[9:])
         response = send_group_message(msg)
-        server.logger.info("sending" + msg)
+        server.logger.info("sending", msg)
         if str(response) == 'OK':
             server.reply(info, text="Message sent successfully")
         else:
