@@ -5,7 +5,7 @@ import queue
 
 
 class QQSocket:
-    def __init__(self, ip="127.0.0.1", port=8080, post_type_list=["message", "message_sent"]):
+    def __init__(self, ip="127.0.0.1", port=8080, post_type_list=["message"]):
         self.recv_que = queue.Queue()
         self.post_type_list = post_type_list
         self.ws = websocket.WebSocketApp('ws://{}:{}/'.format(ip, port),
@@ -20,6 +20,7 @@ class QQSocket:
 
     def when_message(self, ws, message):
         message = json.loads(message)
+        # print(message)
         if message["post_type"] in self.post_type_list:
             self.recv_que.put(message)
 
