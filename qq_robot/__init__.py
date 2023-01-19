@@ -36,7 +36,7 @@ def msg_dealer(qq: QQSocket, config: dict, server: PluginServerInterface):
     while dealing:
         message_list = qq.get_message()
         for message in message_list:
-            print("in msg_dealer", message)
+            # print("in msg_dealer", message)
             if message["message_type"] == "group" and str(message["group_id"]) == config["information"]["group_id"]:
                 print("in group")
                 user = None
