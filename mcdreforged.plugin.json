@@ -1,13 +1,16 @@
 {
-    "id": "qq_robot",
+    "id": "QQrobot",
     "version": "1.0.1",
     "name": "QQrobot",
     "description": {
-        "en_us": "A QQrobot to send message in qq group",
-        "zh_cn": "在QQ群发消息的机器人"
+        "en_us": "A QQrobot to send and receive message in qq group",
+        "zh_cn": "在QQ群收发消息的机器人"
     },
     "author": [
-        "ShiinaRikka"
+        {
+        "name": "ShiinaRikka",
+        "link": "https://github.com/lky1433223/QQrobot"
+        }
     ],
     "dependencies": {
         "mcdreforged": ">=2.0"
