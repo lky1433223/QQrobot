@@ -57,6 +57,6 @@ if __name__ == "__main__":
         msg = input()
         qq.send("send_private_msg", {
             "message_type": "private",
-            "user_id": 541665621,
+            "user_id": 12345678,
             "message": msg
         })
