@@ -18,19 +18,37 @@ def on_qq_message(message, server: PluginServerInterface):
     """
     处QQ消息
     """
-    # server.say(message)
+    # TODO:链接
+    # /tellraw @a {"text":"","extra":[{"text":"网站名称或者你想说的话","color":"颜色","bold":"true","clickEvent":{"action":"open_url","value":"网站"}}]}
     server.broadcast(message)
 
 
-def send_qq_message(command_source: CommandSource, keys: dict):
+def send_qq_message(command_source: InfoCommandSource, keys: dict):
     """
     发送QQ消息
     """
     global qq
     global config
-    server: ServerInterface = command_source.get_server()  # 获取server
-    res = qq.send_group_message(group_id=config['information']['group_id'], message=keys['message'])
-    server.say(text="发送状态{}".format(res))
+
+    # server: ServerInterface = command_source.get_server()  # 获取server
+
+    # 获取用户
+    user = "server"
+    if command_source.is_player:
+        info = command_source.get_info()  # InfoCommandSource是CommandSource的子类，可以get_info
+        user = info.player
+    msg = "[{}]{}".format(user, keys['message'])
+
+    # 对用户进行发送情况反馈
+    res = False
+    res_status = ""
+    try:
+        res = qq.send_group_message(group_id=config['information']['group_id'], message=msg)
+    except Exception as err:
+        res = False
+        res_status = str(err)
+    finally:
+        command_source.reply(message="发送状态{} {}".format(res, res_status))
 
 
 def on_load(server: PluginServerInterface, old):
@@ -58,6 +76,7 @@ def on_load(server: PluginServerInterface, old):
     builder.command('!!qq send <message>', send_qq_message)
     builder.arg('message', GreedyText)
     builder.register(server)
+    qq.send_group_message(config['information']['group_id'], "[server] QQrobot stated")
 
 
 def on_unload(server: PluginServerInterface):
