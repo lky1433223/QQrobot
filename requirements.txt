@@ -1,1 +1,2 @@
-websocket
+mcdreforged~=2.8.4
+websocket-client

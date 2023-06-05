@@ -32,7 +32,8 @@ pip install -r requirements.txt
 
 ```group_id```：发送消息的群号，默认值：```0```
 
-```userlist```：QQ号和游戏id的对应表
+```user_list```：QQ号和游戏id的对应表
+```group_list```：QQ要监听的QQ群列表
 
 # Command
 ```!!qq```显示帮助信息
