@@ -18,7 +18,7 @@ def on_qq_message(message, server: PluginServerInterface):
     """
     处QQ消息
     """
-    server.say(message)
+    # server.say(message)
     server.broadcast(message)
 
 

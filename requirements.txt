@@ -1,2 +1,2 @@
-mcdreforged~=2.8.4
+mcdreforged>=2.8.4
 websocket-client
