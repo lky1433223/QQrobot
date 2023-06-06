@@ -120,7 +120,7 @@ def on_server_startup(server: PluginServerInterface):
 def on_server_stop(server: PluginServerInterface, server_return_code: int):
     global qq
     global config
-    if (server_return_code != 0):
+    if server_return_code != 0:
         qq.send_group_message(config['information']['group_id'],
                               '[server] Server stopped unexpected, is it a server crash?')
     else:
