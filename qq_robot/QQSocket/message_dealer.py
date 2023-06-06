@@ -20,7 +20,7 @@ class MessageDealer:
         # 用户qqid和用户名对照表
         self.user_list: {str: str} = user_list
 
-    def deal_message(self, message: list[dict]):
+    def deal_message(self, message: list[dict], require_type=str):
         res_message = ""
         for msg in message:
             if msg['type'] in self.dealer_list:

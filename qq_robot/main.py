@@ -20,6 +20,7 @@ def on_qq_message(message, server: PluginServerInterface):
     """
     # TODO:链接
     # /tellraw @a {"text":"","extra":[{"text":"网站名称或者你想说的话","color":"颜色","bold":"true","clickEvent":{"action":"open_url","value":"网站"}}]}
+
     server.broadcast(message)
 
 
