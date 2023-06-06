@@ -4,7 +4,8 @@ import time
 import uuid
 
 import websocket
-from . import message_dealer
+from .message_dealer import MessageDealer
+from .message import Message
 
 
 class QQApp:
@@ -24,7 +25,7 @@ class QQApp:
         self.group_list = group_list
         self.user_list = user_list
         self.callback = callback
-        self.Dealear = message_dealer.MessageDealer(user_list=self.user_list)
+        self.Dealear = MessageDealer(user_list=self.user_list)
         self.wating_queue = set()  # 发送消息后的等待列表
         self.finished_list = {}
         self.Thread: threading.Thread
@@ -39,7 +40,8 @@ class QQApp:
                         user = str(message['user_id'])
                         if user in self.user_list:
                             user = self.user_list[user]
-                        res_message = "[{}]{}".format(user, self.Dealear.deal_message(message['message']))
+                        res_message = Message(user)
+                        self.Dealear.deal_message(message['message'], res_message)
                         self.callback(res_message, **self.kwargs)
         elif 'status' in message:
             if 'echo' in message and message['echo'] in self.wating_queue:
@@ -71,6 +73,7 @@ class QQApp:
         }
         self.wating_queue.add(msg_id)
         self.send(msg)
+
         start_time = time.time()
         while time.time() - start_time < 20:  # 循环20秒
             if msg_id in self.finished_list:
@@ -101,16 +104,18 @@ class QQApp:
         self.Thread.setDaemon(True)
         self.Thread.setName('QQAPP')
         self.Thread.start()
+        time.sleep(5)  # 等待五秒确保线程已经启动
 
     def stop(self):
-        # self.Thread.join()
-        pass
+        self.ws.close()
 
 
 if __name__ == "__main__":
     webapp = QQApp(ip="127.0.0.1", port=8080, group_list=[1067245310, 839640112],
-                   user_list={"541665621": "ShiinaRikka"})
+                   user_list={"541665621": "ShiinaRikka"}, callback=lambda x: print(x))
     webapp.run()
+
+    res = webapp.send_group_message(839640112, "1")
     while True:
         msg = input("输入消息")
         res = webapp.send_group_message(839640112, msg)

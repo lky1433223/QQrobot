@@ -2,6 +2,7 @@
 处理CQ格式消息
 参考文档https://docs.go-cqhttp.org/cqcode
 """
+from .message import Message
 
 
 class MessageDealer:
@@ -20,15 +21,17 @@ class MessageDealer:
         # 用户qqid和用户名对照表
         self.user_list: {str: str} = user_list
 
-    def deal_message(self, message: list[dict], require_type=str):
-        res_message = ""
+    def deal_message(self, message: list[dict], Msg: Message) -> Message:
         for msg in message:
             if msg['type'] in self.dealer_list:
-                apd_msg = "{}".format(self.dealer_list[msg['type']](msg))
-                res_message += apd_msg
+                apd_msg = {
+                    "type": msg['type'],
+                    'data': self.dealer_list[msg['type']](msg)
+                }
+                Msg.append(apd_msg)
             else:
-                res_message += '[未知消息]'
-        return res_message
+                Msg.append({"type": "unknown", "data": "未知消息"})
+        return Msg
 
     def deal_message_face(self, message: dict):
         """
@@ -37,7 +40,7 @@ class MessageDealer:
         :return:
         """
         res_message = message['data']['id']
-        res_message = "[表情{}]".format(res_message)
+        res_message = "<表情{}>".format(res_message)
         return res_message
 
     def deal_message_record(self, message: dict):
@@ -47,7 +50,7 @@ class MessageDealer:
         :return:
         """
         res_message = message['data']['file']
-        res_message = "[语音消息]"
+        res_message = "<语音消息>"
         return res_message
 
     def deal_message_at(self, message: dict):
@@ -73,7 +76,7 @@ class MessageDealer:
         """
         url = message['data']['url']
         title = message['data']['title']
-        res_message = "分享了：{}，链接{}".format(url, title)
+        res_message = "{}".format(url, title)
         return res_message
 
     def deal_message_image(self, message):
@@ -83,7 +86,7 @@ class MessageDealer:
         :return:
         """
         url = message['data']['url']
-        res_message = "[图片，请点击链接 {} 查看]".format(url)
+        res_message = "{}".format(url)
         return res_message
 
     def deal_message_text(self, message):

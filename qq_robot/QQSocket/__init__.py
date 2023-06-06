@@ -1,3 +1,5 @@
 from .message_dealer import MessageDealer
 from .QQApp import QQApp
-__all__ = [QQApp, MessageDealer]
+from .message import Message
+
+__all__ = [QQApp, MessageDealer, Message]

@@ -1,5 +1,6 @@
 from .QQSocket import QQApp
 from mcdreforged.api.all import *
+from .QQSocket import Message
 
 Config = {
     "information": {
@@ -14,14 +15,31 @@ qq: QQApp
 config: dict
 
 
-def on_qq_message(message, server: PluginServerInterface):
+def on_qq_message(message: Message, server: PluginServerInterface):
     """
     处QQ消息
     """
     # TODO:链接
+    res_msg = RTextBase.format('[{}]', RText(message.get_sender(), color=RColor.light_purple))
+    msg_list = message.get_message_list()
+    tmp = RAction.open_url
+    for msg in msg_list:
+        if msg['type'] == 'image':
+            text = RText('>图片 点我<', color=RColor.blue).set_click_event(RAction.open_url, msg['data'])
+            res_msg = RTextBase.format('{}{}', res_msg, text)
+        else:
+            res_msg = RTextBase.format('{}{}', res_msg, RText(msg['data']))
     # /tellraw @a {"text":"","extra":[{"text":"网站名称或者你想说的话","color":"颜色","bold":"true","clickEvent":{"action":"open_url","value":"网站"}}]}
+    server.broadcast(res_msg)
 
-    server.broadcast(message)
+
+def qq_help(command_source: InfoCommandSource, keys: dict):
+    click_event = RText('点我发消息', color=RColor.green).set_click_event(RAction.suggest_command, '!!qq send ')
+
+    text = RTextBase.format('[{}]', click_event)
+
+    server = command_source.get_server()
+    server.broadcast(text)
 
 
 def send_qq_message(command_source: InfoCommandSource, keys: dict):
@@ -34,7 +52,7 @@ def send_qq_message(command_source: InfoCommandSource, keys: dict):
     # server: ServerInterface = command_source.get_server()  # 获取server
 
     # 获取用户
-    user = "server"
+    user = "console"
     if command_source.is_player:
         info = command_source.get_info()  # InfoCommandSource是CommandSource的子类，可以get_info
         user = info.player
@@ -74,10 +92,12 @@ def on_load(server: PluginServerInterface, old):
     )
 
     builder = SimpleCommandBuilder()
+    builder.command('!!qq', qq_help)
     builder.command('!!qq send <message>', send_qq_message)
     builder.arg('message', GreedyText)
     builder.register(server)
-    qq.send_group_message(config['information']['group_id'], "[server] QQrobot stated")
+
+    qq.send_group_message(config['information']['group_id'], "[server] QQrobot started")
 
 
 def on_unload(server: PluginServerInterface):

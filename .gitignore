@@ -137,3 +137,5 @@ dmypy.json
 /.idea/vcs.xml
 
 go_cqhttp/
+MCDR/
+QQrobot.mcdr
