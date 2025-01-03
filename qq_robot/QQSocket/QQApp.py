@@ -6,11 +6,12 @@ import uuid
 import websocket
 from .message_dealer import MessageDealer
 from .message import Message
-
+import requests
 
 class QQApp:
     def __init__(self, callback, group_list=None, user_list=None, ip: str = "127.0.0.1", port: int = 8080, **kwargs):
 
+        self.Thread = None
         if user_list is None:
             user_list = {}
         if group_list is None:
@@ -52,8 +53,12 @@ class QQApp:
     def send(self, message: dict):
         if type(message) is not dict:
             raise TypeError
-        self.ws.send(json.dumps(message))
+        # TODO:websock
+        url = 'http://192.168.3.205:5700/send_group_msg'
 
+        response = requests.post(url, json=message['params'])
+        # self.ws.send(json.dumps(message))
+        return response
     def send_group_message(self, group_id: int, message: str) -> bool:
         """
         发送群消息并返回是否发送成功
@@ -63,7 +68,7 @@ class QQApp:
         """
         msg_id = str(uuid.uuid4())
         msg = {
-            'action': 'send_group_msg',
+            'action': 'get_login_info',
             'params': {
                 'group_id': group_id,
                 'message': message,
@@ -101,8 +106,8 @@ class QQApp:
 
     def run(self):
         self.Thread = threading.Thread(target=self.ws.run_forever)
-        self.Thread.setDaemon(True)
-        self.Thread.setName('QQAPP')
+        self.Thread.daemon = True
+        self.Thread.name = 'QQAPP'
         self.Thread.start()
         time.sleep(5)  # 等待五秒确保线程已经启动
 
@@ -111,7 +116,7 @@ class QQApp:
 
 
 if __name__ == "__main__":
-    webapp = QQApp(ip="127.0.0.1", port=8080, group_list=[1067245310, 839640112],
+    webapp = QQApp(ip="192.168.3.205", port=8080, group_list=[1067245310, 839640112],
                    user_list={"541665621": "ShiinaRikka"}, callback=lambda x: print(x))
     webapp.run()
 
